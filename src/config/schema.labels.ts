@@ -65,6 +65,7 @@ export const FIELD_LABELS: Record<string, string> = {
   "tools.media.video.scope": "Video Understanding Scope",
   "tools.links.enabled": "Enable Link Understanding",
   "tools.links.maxLinks": "Link Understanding Max Links",
+  "tools.links.concurrency": "Link Understanding Concurrency",
   "tools.links.timeoutSeconds": "Link Understanding Timeout (sec)",
   "tools.links.models": "Link Understanding Models",
   "tools.links.scope": "Link Understanding Scope",
