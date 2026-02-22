@@ -9,8 +9,9 @@ vi.mock("../process/exec.js", () => ({
   runExec: (...args: unknown[]) => runExecMock(...args),
 }));
 
-function createConfig(concurrency?: number): OpenClawConfig {
+function createConfig(concurrency?: number, maxConcurrent?: number): OpenClawConfig {
   return {
+    agents: { defaults: { maxConcurrent } },
     tools: {
       links: {
         enabled: true,
@@ -61,7 +62,45 @@ describe("runLinkUnderstanding", () => {
     expect(maxInFlight).toBe(3);
   });
 
-  it("uses default parallelism when concurrency is not configured", async () => {
+  it("caps explicit concurrency to agent maxConcurrent", async () => {
+    let inFlight = 0;
+    let maxInFlight = 0;
+    runExecMock.mockImplementation(async () => {
+      inFlight += 1;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      inFlight -= 1;
+      return { stdout: "ok" };
+    });
+
+    await runLinkUnderstanding({
+      cfg: createConfig(10, 2),
+      ctx: createCtx("https://a.test https://b.test https://c.test"),
+    });
+
+    expect(maxInFlight).toBe(2);
+  });
+
+  it("uses adaptive default parallelism from agent concurrency", async () => {
+    let inFlight = 0;
+    let maxInFlight = 0;
+    runExecMock.mockImplementation(async () => {
+      inFlight += 1;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      inFlight -= 1;
+      return { stdout: "ok" };
+    });
+
+    await runLinkUnderstanding({
+      cfg: createConfig(undefined, 2),
+      ctx: createCtx("https://a.test https://b.test https://c.test"),
+    });
+
+    expect(maxInFlight).toBe(2);
+  });
+
+  it("falls back to default link concurrency when agent limit is unset", async () => {
     let inFlight = 0;
     let maxInFlight = 0;
     runExecMock.mockImplementation(async () => {
@@ -77,6 +116,6 @@ describe("runLinkUnderstanding", () => {
       ctx: createCtx("https://a.test https://b.test https://c.test"),
     });
 
-    expect(maxInFlight).toBe(2);
+    expect(maxInFlight).toBe(3);
   });
 });

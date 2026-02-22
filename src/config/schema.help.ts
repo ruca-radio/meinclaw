@@ -119,6 +119,11 @@ export const FIELD_HELP: Record<string, string> = {
   "tools.message.crossContext.marker.suffix":
     'Text suffix for cross-context markers (supports "{channel}").',
   "tools.message.broadcast.enabled": "Enable broadcast action (default: true).",
+  "tools.links.enabled": "Enable link understanding for detected URLs in inbound messages.",
+  "tools.links.maxLinks": "Maximum number of links processed per message (default: 3).",
+  "tools.links.concurrency":
+    "Maximum concurrent link-understanding runs per message (default: adaptive to agent concurrency, capped at 4 and never above agents.defaults.maxConcurrent).",
+  "tools.links.timeoutSeconds": "Default timeout in seconds for each link understanding model run.",
   "tools.web.search.enabled": "Enable the web_search tool (requires a provider API key).",
   "tools.web.search.provider": 'Search provider ("brave" or "perplexity").',
   "tools.web.search.apiKey": "Brave Search API key (fallback: BRAVE_API_KEY env var).",
