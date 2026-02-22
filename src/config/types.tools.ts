@@ -112,6 +112,8 @@ export type LinkToolsConfig = {
   scope?: MediaUnderstandingScopeConfig;
   /** Max number of links to process per message. */
   maxLinks?: number;
+  /** Max concurrent link understanding runs. */
+  concurrency?: number;
   /** Default timeout (seconds). */
   timeoutSeconds?: number;
   /** Ordered model list (fallbacks in order). */

@@ -10,6 +10,7 @@ import {
   resolveMediaUnderstandingScope,
 } from "../media-understanding/scope.js";
 import { runExec } from "../process/exec.js";
+import { runTasksWithConcurrency } from "../utils/run-with-concurrency.js";
 import { DEFAULT_LINK_TIMEOUT_SECONDS } from "./defaults.js";
 import { extractLinksFromMessage } from "./detect.js";
 
@@ -104,6 +105,15 @@ async function runLinkEntries(params: {
   return null;
 }
 
+function resolveLinkConcurrency(config?: LinkToolsConfig, linkCount = 0): number {
+  const configured = config?.concurrency;
+  const fallback = linkCount > 0 ? Math.min(2, linkCount) : 1;
+  if (typeof configured !== "number" || !Number.isFinite(configured)) {
+    return fallback;
+  }
+  return Math.max(1, Math.floor(configured));
+}
+
 export async function runLinkUnderstanding(params: {
   cfg: OpenClawConfig;
   ctx: MsgContext;
@@ -133,18 +143,21 @@ export async function runLinkUnderstanding(params: {
     return { urls: links, outputs: [] };
   }
 
-  const outputs: string[] = [];
-  for (const url of links) {
-    const output = await runLinkEntries({
-      entries,
-      ctx: params.ctx,
-      url,
-      config,
-    });
-    if (output) {
-      outputs.push(output);
-    }
-  }
+  const tasks = links.map(
+    (url) => () =>
+      runLinkEntries({
+        entries,
+        ctx: params.ctx,
+        url,
+        config,
+      }),
+  );
+  const concurrency = resolveLinkConcurrency(config, links.length);
+  const { results } = await runTasksWithConcurrency({
+    tasks,
+    limit: concurrency,
+  });
+  const outputs = results.filter((item): item is string => Boolean(item));
 
   return { urls: links, outputs };
 }

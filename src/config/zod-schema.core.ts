@@ -497,6 +497,7 @@ export const ToolsLinksSchema = z
     enabled: z.boolean().optional(),
     scope: MediaUnderstandingScopeSchema,
     maxLinks: z.number().int().positive().optional(),
+    concurrency: z.number().int().positive().optional(),
     timeoutSeconds: z.number().int().positive().optional(),
     models: z.array(LinkModelSchema).optional(),
   })
