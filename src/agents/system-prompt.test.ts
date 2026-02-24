@@ -199,6 +199,16 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).toContain("Do not poll `subagents list` / `sessions_list` in a loop");
   });
 
+  it("includes memory writeback guidance when memory tools are available", () => {
+    const prompt = buildAgentSystemPrompt({
+      workspaceDir: "/tmp/openclaw",
+      toolNames: ["memory_search", "memory_get"],
+    });
+
+    expect(prompt).toContain("## Memory Recall");
+    expect(prompt).toContain("append reusable lessons to MEMORY.md or memory/*.md");
+  });
+
   it("lists available tools when provided", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/openclaw",
