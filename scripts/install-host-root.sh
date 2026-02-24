@@ -37,4 +37,4 @@ pnpm install --frozen-lockfile
 pnpm ui:build
 pnpm build
 
-echo "==> Done. Existing configuration was preserved at: ${OPENCLAW_STATE_DIR:-$HOME/.openclaw}"
+echo "==> Done. Existing configuration was preserved (default root path: ${OPENCLAW_STATE_DIR:-$HOME/.openclaw})"
